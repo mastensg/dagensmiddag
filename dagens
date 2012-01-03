@@ -1,0 +1,372 @@
+#!/usr/bin/env python
+# -*- coding: utf8 -*-
+
+import lxml.html
+import mechanize
+
+def get_menus():
+    br = mechanize.Browser()
+
+    br.open("http://www.sio.no/")
+
+    br.follow_link(text_regex=r"Mat og drikke")
+    br.follow_link(text_regex=r"Dagens middag")
+
+    menus = {}
+
+    ### Frederikke ###
+    r = br.follow_link(text_regex=r"Frederikke")
+    doc = lxml.html.fromstring(unicode(r.read(), encoding="utf8"))
+    table = doc.find_class("sioArticleBodyText")[0].findall("table/tbody/tr")
+
+    menus["Frederikke"] = {
+            "Dagens": 2 * [""],
+            "Vegetar": 2 * [""],
+            "Halal": 2 * [""],
+            "Suppe": 5 * [2 * [""]]
+            }
+
+    d, v, h = [[j.text.strip().encode("utf-8") for j in i.findall("td")[1]] for i in table[:5:2]]
+
+    menus["Frederikke"]["Dagens"][0] = d[1:]
+    menus["Frederikke"]["Vegetar"][0] = v[0], " ".join(v[1:])
+    menus["Frederikke"]["Halal"][0] = h[:2]
+
+    n = 0
+    for i in doc.find_class("sioArticleBodyText")[0].findall("font/table/tbody/tr"):
+        s = i[-1]
+        s = s.text_content()
+        s = "".join(s)
+        s = s.split(u"\xa0- ")
+        s = s[1:]
+        s = [t.replace(u"\xa0", "") for t in s]
+        s = [t.replace("\n", "") for t in s]
+        s = [t.strip() for t in s]
+        s = [t.encode("utf-8") for t in s]
+
+        menus["Frederikke"]["Suppe"][n] = s
+
+        n += 1
+        if n >= len(menus["Frederikke"]["Suppe"]):
+            break
+
+    br.back()
+
+    ### Informatikkafeen ###
+    r = br.follow_link(text_regex=r"Informatikk")
+    doc = lxml.html.fromstring(unicode(r.read(), encoding="utf8"))
+    table = doc.find_class("sioArticleBodyText")[0].findall("table/tbody/tr")
+
+    menus["Informatikkafeen"] = {
+            "Dagens": 5 * [[""]],
+            "Vegetar": 5 * [[""]]
+            }
+
+    menus["Informatikkafeen"]["Dagens"] = [[i.text.encode("utf-8")] for i in table[0].findall("td")[2][::2]]
+
+    return menus
+
+def put_html(menus, day):
+    print("""<!doctype html>
+<head>
+    <title>Dagens middag</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            background: #ffe;
+            color: black;
+        }
+
+        .leftmost {
+            border-left: none;
+        }
+
+        .nottoday {
+            color: gray;
+        }
+
+        td, th {
+            border-bottom: 1px solid lightgray;
+            border-left: 1px solid lightgray;
+            padding: 0.3em 0.8em;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            margin: 0.5em 0;
+        }
+    </style>
+</head>
+<table cellspacing="0">
+    <thead>
+        <tr>
+            <th class="leftmost"></th>
+            <th class="leftmost"></th>
+            <th class="nottoday">Mandag</th>
+            <th>Tirsdag</th>
+            <th class="nottoday">Onsdag</th>
+            <th class="nottoday">Torsdag</th>
+            <th class="nottoday">Fredag</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="leftmost" rowspan="5">Frederikke</td>
+            <td>Åpningstid</td>
+            <td class="nottoday">11:00 - 19:00</td>
+            <td>11:00 - 19:00</td>
+            <td class="nottoday">11:00 - 19:00</td>
+            <td class="nottoday">11:00 - 19:00</td>
+            <td class="nottoday">11:00 - 18:00</td>
+        </tr>
+        <tr>
+            <td>Dagens</td>
+            <td colspan="5"><ul>
+                    <li>%s</li>
+                    <li>%s</li>
+            </ul></td>
+        </tr>
+        <tr>
+            <td>Vegetar</td>
+            <td colspan="5"><ul>
+                    <li>%s</li>
+                    <li>%s</li>
+            </ul></td>
+        </tr>
+        <tr>
+            <td>Halal</td>
+            <td colspan="5">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>Suppe</td>
+            <td class="nottoday">
+                <ul>
+                    <li>%s</li>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>%s</li>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="nottoday">
+                <ul>
+                    <li>%s</li>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="nottoday">
+                <ul>
+                    <li>%s</li>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="nottoday">
+                <ul>
+                    <li>%s</li>
+                    <li>%s</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="leftmost" rowspan="3">Informatikkafeen</td>
+            <td>Åpningstid</td>
+            <td class="nottoday">11:00 - 17:00</td>
+            <td>11:00 - 17:00</td>
+            <td class="nottoday">11:00 - 17:00</td>
+            <td class="nottoday">11:00 - 17:00</td>
+            <td class="nottoday">11:00 - 15:00</td>
+        </tr>
+        <tr>
+            <td>Dagens</td>
+            <td class="nottoday">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="nottoday">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="nottoday">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="nottoday">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>Vegetar</td>
+            <td class="nottoday">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="nottoday">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="nottoday">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="nottoday">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>
+    """ % (
+            menus["Frederikke"]["Dagens"][0][0],
+            menus["Frederikke"]["Dagens"][0][1],
+            menus["Frederikke"]["Vegetar"][0][0],
+            menus["Frederikke"]["Vegetar"][0][1],
+            menus["Frederikke"]["Halal"][0][0],
+
+            menus["Frederikke"]["Suppe"][0][0],
+            menus["Frederikke"]["Suppe"][0][1],
+            menus["Frederikke"]["Suppe"][1][0],
+            menus["Frederikke"]["Suppe"][1][1],
+            menus["Frederikke"]["Suppe"][2][0],
+            menus["Frederikke"]["Suppe"][2][1],
+            menus["Frederikke"]["Suppe"][3][0],
+            menus["Frederikke"]["Suppe"][3][1],
+            menus["Frederikke"]["Suppe"][4][0],
+            menus["Frederikke"]["Suppe"][4][1],
+
+            menus["Informatikkafeen"]["Dagens"][0][0],
+            menus["Informatikkafeen"]["Dagens"][1][0],
+            menus["Informatikkafeen"]["Dagens"][2][0],
+            menus["Informatikkafeen"]["Dagens"][3][0],
+            menus["Informatikkafeen"]["Dagens"][4][0],
+            menus["Informatikkafeen"]["Vegetar"][0][0],
+            menus["Informatikkafeen"]["Vegetar"][1][0],
+            menus["Informatikkafeen"]["Vegetar"][2][0],
+            menus["Informatikkafeen"]["Vegetar"][3][0],
+            menus["Informatikkafeen"]["Vegetar"][4][0],
+            )
+    )
+
+def put_text(menus, day):
+    print("Frederikke")
+    print("==========")
+    print("")
+    print("Dagens:      %s" % menus["Frederikke"]["Dagens"][0][0])
+    print("             %s" % menus["Frederikke"]["Dagens"][0][1])
+    print("")
+    print("Vegetar:     %s" % menus["Frederikke"]["Vegetar"][0][0])
+    print("             %s" % menus["Frederikke"]["Vegetar"][0][1])
+    print("")
+    print("Halal:       %s" % menus["Frederikke"]["Halal"][0][0])
+    print("             %s" % menus["Frederikke"]["Halal"][0][1])
+    print("")
+    print("Suppe")
+    print("-----")
+    print("")
+
+    if day == 0:
+        print("[1m")
+    print("Mandag:      %s" % menus["Frederikke"]["Suppe"][0][0])
+    print("             %s" % menus["Frederikke"]["Suppe"][0][1])
+    print("[0m")
+
+    if day == 1:
+        print("[1m")
+    print("Tirsdag:     %s" % menus["Frederikke"]["Suppe"][1][0])
+    print("             %s" % menus["Frederikke"]["Suppe"][1][1])
+    print("[0m")
+
+
+    if day == 2:
+        print("[1m")
+    print("Onsdag:      %s" % menus["Frederikke"]["Suppe"][2][0])
+    print("             %s" % menus["Frederikke"]["Suppe"][2][1])
+    print("[0m")
+
+
+    if day == 3:
+        print("[1m")
+    print("Torsdag:     %s" % menus["Frederikke"]["Suppe"][3][0])
+    print("             %s" % menus["Frederikke"]["Suppe"][3][1])
+    print("[0m")
+
+
+    if day == 4:
+        print("[1m")
+    print("Fredag:      %s" % menus["Frederikke"]["Suppe"][4][0])
+    print("             %s" % menus["Frederikke"]["Suppe"][4][1])
+    print("[0m")
+
+    print("Informatikkafeen")
+    print("================")
+    print("")
+
+    if day == 0:
+        print("[1m")
+    print("Mandag:      %s" % menus["Informatikkafeen"]["Dagens"][0][0])
+    print("[0m")
+
+    if day == 1:
+        print("[1m")
+    print("Tirsdag:     %s" % menus["Informatikkafeen"]["Dagens"][1][0])
+    print("[0m")
+
+    if day == 2:
+        print("[1m")
+    print("Onsdag:      %s" % menus["Informatikkafeen"]["Dagens"][2][0])
+    print("[0m")
+
+    if day == 3:
+        print("[1m")
+    print("Torsdag:     %s" % menus["Informatikkafeen"]["Dagens"][3][0])
+    print("[0m")
+
+    if day == 4:
+        print("[1m")
+    print("Fredag:      %s" % menus["Informatikkafeen"]["Dagens"][4][0])
+    print("[0m")
+
+if __name__ == "__main__":
+    import sys
+    import time
+
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--html":
+            put_html(get_menus(), time.localtime().tm_wday)
+        else:
+            print("Usage: %s [--html]" % sys.argv[0].split("/")[-1])
+
+    else:
+        put_text(get_menus(), time.localtime().tm_wday)
