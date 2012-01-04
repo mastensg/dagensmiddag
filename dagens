@@ -370,13 +370,26 @@ def put_text(menus, day):
 
 if __name__ == "__main__":
     import sys
-    import time
 
     if len(sys.argv) > 1:
         if sys.argv[1] == "--html":
-            put_html(get_menus(), time.localtime().tm_wday)
+            fmt = "html"
+        elif sys.argv[1] == "--repr":
+            fmt = "repr"
         else:
-            print("Usage: %s [--html]" % sys.argv[0].split("/")[-1])
-
+            sys.stderr.write("Usage: %s [--{html,repr}]\n" % sys.argv[0].split("/")[-1])
+            sys.exit(1)
     else:
-        put_text(get_menus(), time.localtime().tm_wday)
+        fmt = "text"
+
+    import time
+
+    weekday = time.localtime().tm_wday
+    menus = get_menus()
+
+    if fmt == "html":
+        put_html(menus, weekday)
+    elif fmt == "repr":
+        print(repr(menus))
+    else:
+        put_text(menus, weekday)
