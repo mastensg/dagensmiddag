@@ -151,6 +151,7 @@ def put_html(menus, day):
             <td colspan="5">
                 <ul>
                     <li>%s</li>
+                    <li>%s</li>
                 </ul>
             </td>
         </tr>
@@ -266,6 +267,7 @@ def put_html(menus, day):
             menus["Frederikke"]["Vegetar"][0][0],
             menus["Frederikke"]["Vegetar"][0][1],
             menus["Frederikke"]["Halal"][0][0],
+            menus["Frederikke"]["Halal"][0][1],
 
             menus["Frederikke"]["Suppe"][0][0],
             menus["Frederikke"]["Suppe"][0][1],
