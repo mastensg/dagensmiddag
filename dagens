@@ -70,56 +70,13 @@ def put_html(menus, day):
     print("""<!doctype html>
 <head>
     <title>Dagens middag</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
     <style>
-        * {
-            border-spacing: 0;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            background: #fffff8;
-            color: black;
-        }
-
-        .odd {
-            background: #f8ffff;
-        }
-
-        .leftmost {
-            border-left: none;
-        }
-
         .day0 { color: %s; }
         .day1 { color: %s; }
         .day2 { color: %s; }
         .day3 { color: %s; }
         .day4 { color: %s; }
-
-        td, th {
-            border-bottom: 1px solid lightgray;
-            border-left: 1px solid lightgray;
-            padding: 0.3em 0.8em;
-        }
-
-        ul {
-            list-style: none;
-        }
-
-        li {
-            margin: 0.5em 0;
-        }
-
-        p {
-            margin: 1.5em;
-        }
-
-        a { color: green; }
-
-        .notice {
-            color: gray;
-            font-size: 0.8em;
-        }
     </style>
 </head>
 <table>
@@ -273,11 +230,11 @@ def put_html(menus, day):
     <p>Kildekoden er tilgjengelig på <a href="http://github.com/mastensg/dagens">Github</a>.</p>
 </div>
     """ % (
-            "black" if day == 0 else "gray",
-            "black" if day == 1 else "gray",
-            "black" if day == 2 else "gray",
-            "black" if day == 3 else "gray",
-            "black" if day == 4 else "gray",
+            "black" if day == 0 else "#666",
+            "black" if day == 1 else "#666",
+            "black" if day == 2 else "#666",
+            "black" if day == 3 else "#666",
+            "black" if day == 4 else "#666",
 
             menus["Frederikke"]["Dagens"][0][0],
             menus["Frederikke"]["Dagens"][0][1],
