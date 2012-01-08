@@ -227,7 +227,7 @@ def put_html(menus, day):
 <div class="notice">
     <p>Denne siden er laget av Martin Stensgård (mastensg&#64;ping.uio.no).</p>
     <p>Tabellen fins også som <a href="index.json">JSON</a>.</p>
-    <p>Kildekoden er tilgjengelig på <a href="http://github.com/mastensg/dagens">Github</a>.</p>
+    <p>Kildekoden er tilgjengelig på <a href="http://github.com/mastensg/dagensmiddag">Github</a>.</p>
 </div>
     """ % (
             "black" if day == 0 else "#666",
