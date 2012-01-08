@@ -377,10 +377,12 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "--html":
             fmt = "html"
+        elif sys.argv[1] == "--json":
+            fmt = "json"
         elif sys.argv[1] == "--repr":
             fmt = "repr"
         else:
-            sys.stderr.write("Usage: %s [--{html,repr}]\n" % sys.argv[0].split("/")[-1])
+            sys.stderr.write("Usage: %s [--{html,json,repr}]\n" % sys.argv[0].split("/")[-1])
             sys.exit(1)
     else:
         fmt = "text"
@@ -392,6 +394,9 @@ if __name__ == "__main__":
 
     if fmt == "html":
         put_html(menus, weekday)
+    elif fmt == "json":
+        import json
+        print json.dumps(menus)
     elif fmt == "repr":
         print(repr(menus))
     else:
