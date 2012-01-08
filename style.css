@@ -5,12 +5,12 @@
 }
 
 html {
-    background: #fffff8;
+    background: #ffe;
     color: black;
 }
 
 .odd {
-    background: #f8ffff;
+    background: #eff;
 }
 
 .leftmost {
@@ -32,12 +32,12 @@ li {
 }
 
 p {
-    margin: 1.5em;
+    margin: 1.5em 1.5em;
 }
 
 a { color: green; }
 
 .notice {
-    color: gray;
+    color: #666;
     font-size: 0.8em;
 }
