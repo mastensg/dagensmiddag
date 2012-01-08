@@ -109,6 +109,17 @@ def put_html(menus, day):
         li {
             margin: 0.5em 0;
         }
+
+        p {
+            margin: 1.5em;
+        }
+
+        a { color: green; }
+
+        .notice {
+            color: gray;
+            font-size: 0.8em;
+        }
     </style>
 </head>
 <table>
@@ -256,6 +267,11 @@ def put_html(menus, day):
         </tr>
     </tbody>
 </table>
+<div class="notice">
+    <p>Denne siden er laget av Martin Stensgård (mastensg&#64;ping.uio.no).</p>
+    <p>Tabellen fins også som <a href="index.json">JSON</a>.</p>
+    <p>Kildekoden er tilgjengelig på <a href="http://github.com/mastensg/dagens">Github</a>.</p>
+</div>
     """ % (
             "black" if day == 0 else "gray",
             "black" if day == 1 else "gray",
