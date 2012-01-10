@@ -14,17 +14,28 @@ def get_menus():
 
     menus = {}
 
-    ### Frederikke ###
-    r = br.follow_link(text_regex=r"Frederikke")
-    doc = lxml.html.fromstring(unicode(r.read(), encoding="utf8"))
-    table = doc.find_class("sioArticleBodyText")[0].findall("table/tbody/tr")
-
     menus["Frederikke"] = {
             "Dagens": 2 * [""],
             "Vegetar": 2 * [""],
             "Halal": 2 * [""],
             "Suppe": 5 * [2 * [""]]
             }
+
+    menus["Informatikkafeen"] = {
+            "Dagens": 5 * [[""]],
+            "Vegetar": 5 * [[""]]
+            }
+
+    menus["SV-kafeen"] = {
+            "Dagens": 5 * [[""]],
+            "Vegetar": 5 * [[""]]
+            }
+
+    ### Frederikke ###
+
+    r = br.follow_link(text_regex=r"Frederikke")
+    doc = lxml.html.fromstring(unicode(r.read(), encoding="utf8"))
+    table = doc.find_class("sioArticleBodyText")[0].findall("table/tbody/tr")
 
     d, v, h = [[j.text.strip().encode("utf-8") for j in i.findall("td")[1]] for i in table[:5:2]]
 
@@ -53,19 +64,27 @@ def get_menus():
     br.back()
 
     ### Informatikkafeen ###
+
     r = br.follow_link(text_regex=r"Informatikk")
     doc = lxml.html.fromstring(unicode(r.read(), encoding="utf8"))
     table = doc.find_class("sioArticleBodyText")[0].findall("table/tbody/tr")
 
-    menus["Informatikkafeen"] = {
-            "Dagens": 5 * [[""]],
-            "Vegetar": 5 * [[""]]
-            }
+    d = [i.text.encode("utf-8") for i in table[0].findall("td")[2]]
 
-    try:
-        menus["Informatikkafeen"]["Dagens"] = [[i.text.encode("utf-8")] for i in table[0].findall("td")[2][::2]]
-    except:
-        pass
+    menus["Informatikkafeen"]["Dagens"] = zip(d[0::2], d[1::2])
+
+    br.back()
+
+    ### SV-kafeen ###
+
+    r = br.follow_link(text_regex=r"SV.kaf")
+    doc = lxml.html.fromstring(unicode(r.read(), encoding="utf8"))
+    table = doc.find_class("sioArticleBodyText")[0].findall("table/tbody/tr")
+
+    d = [i.text.strip().encode("utf-8") for i in table[0].findall("td")[2][:14]]
+
+    menus["SV-kafeen"]["Dagens"] = [[i] for i in d[0::3][:5]]
+    menus["SV-kafeen"]["Vegetar"] = [[i] for i in d[1::3][:5]]
 
     return menus
 
@@ -174,6 +193,76 @@ def put_html(menus, day):
             <td class="day0">
                 <ul>
                     <li>%s</li>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="day1">
+                <ul>
+                    <li>%s</li>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="day2">
+                <ul>
+                    <li>%s</li>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="day3">
+                <ul>
+                    <li>%s</li>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="day4">
+                <ul>
+                    <li>%s</li>
+                    <li>%s</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>Vegetar</td>
+            <td class="day0">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="day1">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="day2">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="day3">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+            <td class="day4">
+                <ul>
+                    <li>%s</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="leftmost" rowspan="3">SV-kafeen</td>
+            <td>Åpningstid</td>
+            <td class="day0">11:00 - 18:00</td>
+            <td class="day1">11:00 - 18:00</td>
+            <td class="day2">11:00 - 18:00</td>
+            <td class="day3">11:00 - 18:00</td>
+            <td class="day4">11:00 - 15:00</td>
+        </tr>
+        <tr>
+            <td>Dagens</td>
+            <td class="day0">
+                <ul>
+                    <li>%s</li>
                 </ul>
             </td>
             <td class="day1">
@@ -258,15 +347,31 @@ def put_html(menus, day):
             menus["Frederikke"]["Suppe"][4][1],
 
             menus["Informatikkafeen"]["Dagens"][0][0],
+            menus["Informatikkafeen"]["Dagens"][0][1],
             menus["Informatikkafeen"]["Dagens"][1][0],
+            menus["Informatikkafeen"]["Dagens"][1][1],
             menus["Informatikkafeen"]["Dagens"][2][0],
+            menus["Informatikkafeen"]["Dagens"][2][1],
             menus["Informatikkafeen"]["Dagens"][3][0],
+            menus["Informatikkafeen"]["Dagens"][3][1],
             menus["Informatikkafeen"]["Dagens"][4][0],
+            menus["Informatikkafeen"]["Dagens"][4][1],
             menus["Informatikkafeen"]["Vegetar"][0][0],
             menus["Informatikkafeen"]["Vegetar"][1][0],
             menus["Informatikkafeen"]["Vegetar"][2][0],
             menus["Informatikkafeen"]["Vegetar"][3][0],
             menus["Informatikkafeen"]["Vegetar"][4][0],
+
+            menus["SV-kafeen"]["Dagens"][0][0],
+            menus["SV-kafeen"]["Dagens"][1][0],
+            menus["SV-kafeen"]["Dagens"][2][0],
+            menus["SV-kafeen"]["Dagens"][3][0],
+            menus["SV-kafeen"]["Dagens"][4][0],
+            menus["SV-kafeen"]["Vegetar"][0][0],
+            menus["SV-kafeen"]["Vegetar"][1][0],
+            menus["SV-kafeen"]["Vegetar"][2][0],
+            menus["SV-kafeen"]["Vegetar"][3][0],
+            menus["SV-kafeen"]["Vegetar"][4][0],
             )
     )
 
@@ -326,26 +431,66 @@ def put_text(menus, day):
         print("[1m"),
     print("")
     print("Mandag:      %s[0m" % menus["Informatikkafeen"]["Dagens"][0][0])
+    print("             %s[0m" % menus["Informatikkafeen"]["Dagens"][0][1])
 
     if day == 1:
         print("[1m"),
     print("")
     print("Tirsdag:     %s[0m" % menus["Informatikkafeen"]["Dagens"][1][0])
+    print("             %s[0m" % menus["Informatikkafeen"]["Dagens"][1][1])
 
     if day == 2:
         print("[1m"),
     print("")
     print("Onsdag:      %s[0m" % menus["Informatikkafeen"]["Dagens"][2][0])
+    print("             %s[0m" % menus["Informatikkafeen"]["Dagens"][2][1])
 
     if day == 3:
         print("[1m"),
     print("")
     print("Torsdag:     %s[0m" % menus["Informatikkafeen"]["Dagens"][3][0])
+    print("             %s[0m" % menus["Informatikkafeen"]["Dagens"][3][1])
 
     if day == 4:
         print("[1m"),
     print("")
     print("Fredag:      %s[0m" % menus["Informatikkafeen"]["Dagens"][4][0])
+    print("             %s[0m" % menus["Informatikkafeen"]["Dagens"][4][1])
+
+    print("")
+    print("SV-kafeen")
+    print("=========")
+    print("")
+
+    if day == 0:
+        print("[1m"),
+    print("")
+    print("Mandag:      Dagens:     %s[0m" % menus["SV-kafeen"]["Dagens"][0][0])
+    print("             Vegetar:    %s[0m" % menus["SV-kafeen"]["Vegetar"][0][0])
+
+    if day == 1:
+        print("[1m"),
+    print("")
+    print("Tirsdag:     Dagens:     %s[0m" % menus["SV-kafeen"]["Dagens"][1][0])
+    print("             Vegetar:    %s[0m" % menus["SV-kafeen"]["Vegetar"][1][0])
+
+    if day == 2:
+        print("[1m"),
+    print("")
+    print("Onsdag:      Dagens:     %s[0m" % menus["SV-kafeen"]["Dagens"][2][0])
+    print("             Vegetar:    %s[0m" % menus["SV-kafeen"]["Vegetar"][2][0])
+
+    if day == 3:
+        print("[1m"),
+    print("")
+    print("Torsdag:     Dagens:     %s[0m" % menus["SV-kafeen"]["Dagens"][3][0])
+    print("             Vegetar:    %s[0m" % menus["SV-kafeen"]["Vegetar"][3][0])
+
+    if day == 4:
+        print("[1m"),
+    print("")
+    print("Fredag:      Dagens:     %s[0m" % menus["SV-kafeen"]["Dagens"][4][0])
+    print("             Vegetar:    %s[0m" % menus["SV-kafeen"]["Vegetar"][4][0])
 
 if __name__ == "__main__":
     import sys
