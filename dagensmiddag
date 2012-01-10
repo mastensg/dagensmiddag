@@ -249,7 +249,7 @@ def put_html(menus, day):
                 </ul>
             </td>
         </tr>
-        <tr>
+        <tr class="odd">
             <td class="leftmost" rowspan="3">SV-kafeen</td>
             <td>Åpningstid</td>
             <td class="day0">11:00 - 18:00</td>
@@ -258,7 +258,7 @@ def put_html(menus, day):
             <td class="day3">11:00 - 18:00</td>
             <td class="day4">11:00 - 15:00</td>
         </tr>
-        <tr>
+        <tr class="odd">
             <td>Dagens</td>
             <td class="day0">
                 <ul>
@@ -286,7 +286,7 @@ def put_html(menus, day):
                 </ul>
             </td>
         </tr>
-        <tr>
+        <tr class="odd">
             <td>Vegetar</td>
             <td class="day0">
                 <ul>
