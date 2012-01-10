@@ -379,109 +379,24 @@ def put_text(menus, day):
     print("Halal:       %s" % menus["Frederikke"]["Halal"][0][0])
     print("             %s" % menus["Frederikke"]["Halal"][0][1])
     print("")
-    print("Suppe")
-    print("-----")
+    print("Suppe:       %s" % menus["Frederikke"]["Suppe"][day][0])
+    print("             %s" % menus["Frederikke"]["Suppe"][day][1])
     print("")
-
-    if day == 0:
-        print("[1m"),
-    print("")
-    print("Mandag:      %s" % menus["Frederikke"]["Suppe"][0][0])
-    print("             %s[0m" % menus["Frederikke"]["Suppe"][0][1])
-
-    if day == 1:
-        print("[1m"),
-    print("")
-    print("Tirsdag:     %s" % menus["Frederikke"]["Suppe"][1][0])
-    print("             %s[0m" % menus["Frederikke"]["Suppe"][1][1])
-
-    if day == 2:
-        print("[1m"),
-    print("")
-    print("Onsdag:      %s" % menus["Frederikke"]["Suppe"][2][0])
-    print("             %s[0m" % menus["Frederikke"]["Suppe"][2][1])
-
-    if day == 3:
-        print("[1m"),
-    print("")
-    print("Torsdag:     %s" % menus["Frederikke"]["Suppe"][3][0])
-    print("             %s[0m" % menus["Frederikke"]["Suppe"][3][1])
-
-    if day == 4:
-        print("[1m"),
-    print("")
-    print("Fredag:      %s" % menus["Frederikke"]["Suppe"][4][0])
-    print("             %s[0m" % menus["Frederikke"]["Suppe"][4][1])
-
     print("")
     print("Informatikkafeen")
     print("================")
     print("")
-
-    if day == 0:
-        print("[1m"),
+    print("Dagens:      %s" % menus["Informatikkafeen"]["Dagens"][day][0])
     print("")
-    print("Mandag:      %s[0m" % menus["Informatikkafeen"]["Dagens"][0][0])
-    print("             %s[0m" % menus["Informatikkafeen"]["Dagens"][0][1])
-
-    if day == 1:
-        print("[1m"),
+    print("Vegetar:     %s" % menus["Informatikkafeen"]["Vegetar"][day][0])
     print("")
-    print("Tirsdag:     %s[0m" % menus["Informatikkafeen"]["Dagens"][1][0])
-    print("             %s[0m" % menus["Informatikkafeen"]["Dagens"][1][1])
-
-    if day == 2:
-        print("[1m"),
-    print("")
-    print("Onsdag:      %s[0m" % menus["Informatikkafeen"]["Dagens"][2][0])
-    print("             %s[0m" % menus["Informatikkafeen"]["Dagens"][2][1])
-
-    if day == 3:
-        print("[1m"),
-    print("")
-    print("Torsdag:     %s[0m" % menus["Informatikkafeen"]["Dagens"][3][0])
-    print("             %s[0m" % menus["Informatikkafeen"]["Dagens"][3][1])
-
-    if day == 4:
-        print("[1m"),
-    print("")
-    print("Fredag:      %s[0m" % menus["Informatikkafeen"]["Dagens"][4][0])
-    print("             %s[0m" % menus["Informatikkafeen"]["Dagens"][4][1])
-
     print("")
     print("SV-kafeen")
     print("=========")
     print("")
-
-    if day == 0:
-        print("[1m"),
+    print("Dagens:      %s" % menus["SV-kafeen"]["Dagens"][day][0])
     print("")
-    print("Mandag:      Dagens:     %s[0m" % menus["SV-kafeen"]["Dagens"][0][0])
-    print("             Vegetar:    %s[0m" % menus["SV-kafeen"]["Vegetar"][0][0])
-
-    if day == 1:
-        print("[1m"),
-    print("")
-    print("Tirsdag:     Dagens:     %s[0m" % menus["SV-kafeen"]["Dagens"][1][0])
-    print("             Vegetar:    %s[0m" % menus["SV-kafeen"]["Vegetar"][1][0])
-
-    if day == 2:
-        print("[1m"),
-    print("")
-    print("Onsdag:      Dagens:     %s[0m" % menus["SV-kafeen"]["Dagens"][2][0])
-    print("             Vegetar:    %s[0m" % menus["SV-kafeen"]["Vegetar"][2][0])
-
-    if day == 3:
-        print("[1m"),
-    print("")
-    print("Torsdag:     Dagens:     %s[0m" % menus["SV-kafeen"]["Dagens"][3][0])
-    print("             Vegetar:    %s[0m" % menus["SV-kafeen"]["Vegetar"][3][0])
-
-    if day == 4:
-        print("[1m"),
-    print("")
-    print("Fredag:      Dagens:     %s[0m" % menus["SV-kafeen"]["Dagens"][4][0])
-    print("             Vegetar:    %s[0m" % menus["SV-kafeen"]["Vegetar"][4][0])
+    print("Vegetar:     %s" % menus["SV-kafeen"]["Vegetar"][day][0])
 
 if __name__ == "__main__":
     import sys
