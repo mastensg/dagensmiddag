@@ -194,30 +194,25 @@ def put_html(menus, day):
             <td class="day0">
                 <ul>
                     <li>%s</li>
-                    <li>%s</li>
                 </ul>
             </td>
             <td class="day1">
                 <ul>
-                    <li>%s</li>
                     <li>%s</li>
                 </ul>
             </td>
             <td class="day2">
                 <ul>
                     <li>%s</li>
-                    <li>%s</li>
                 </ul>
             </td>
             <td class="day3">
                 <ul>
                     <li>%s</li>
-                    <li>%s</li>
                 </ul>
             </td>
             <td class="day4">
                 <ul>
-                    <li>%s</li>
                     <li>%s</li>
                 </ul>
             </td>
@@ -348,15 +343,10 @@ def put_html(menus, day):
             menus["Frederikke"]["Suppe"][4][1],
 
             menus["Informatikkafeen"]["Dagens"][0][0],
-            menus["Informatikkafeen"]["Dagens"][0][1],
             menus["Informatikkafeen"]["Dagens"][1][0],
-            menus["Informatikkafeen"]["Dagens"][1][1],
             menus["Informatikkafeen"]["Dagens"][2][0],
-            menus["Informatikkafeen"]["Dagens"][2][1],
             menus["Informatikkafeen"]["Dagens"][3][0],
-            menus["Informatikkafeen"]["Dagens"][3][1],
             menus["Informatikkafeen"]["Dagens"][4][0],
-            menus["Informatikkafeen"]["Dagens"][4][1],
             menus["Informatikkafeen"]["Vegetar"][0][0],
             menus["Informatikkafeen"]["Vegetar"][1][0],
             menus["Informatikkafeen"]["Vegetar"][2][0],
