@@ -44,7 +44,7 @@ def get_menus():
     menus["Frederikke"]["Halal"][0] = h[:2]
 
     n = 0
-    for i in doc.find_class("sioArticleBodyText")[0].findall("font/table/tbody/tr"):
+    for i in doc.find_class("sioArticleBodyText")[0].findall("table")[1].findall("tbody/tr"):
         s = i[-1]
         s = s.text_content()
         s = "".join(s)
