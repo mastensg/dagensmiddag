@@ -84,8 +84,8 @@ def get_menus():
 
     d = [i.text.strip().encode("utf-8") for i in table[0].findall("td")[2][:14]]
 
-    menus["SV-kafeen"]["Dagens"] = [[i] for i in d[0::3][:5]]
-    menus["SV-kafeen"]["Vegetar"] = [[i] for i in d[1::3][:5]]
+    menus["SV-kafeen"]["Dagens"] = zip(d[0::3][:5])
+    menus["SV-kafeen"]["Vegetar"] = zip(d[1::3][:5])
 
     return menus
 
