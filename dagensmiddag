@@ -323,12 +323,12 @@ def put_text(menus, day):
     print("")
 
     if day == 0:
-        print("[1m")
+        print("[1m"),
     print("")
     print("Mandag:      %s[0m" % menus["Informatikkafeen"]["Dagens"][0][0])
 
     if day == 1:
-        print("[1m")
+        print("[1m"),
     print("")
     print("Tirsdag:     %s[0m" % menus["Informatikkafeen"]["Dagens"][1][0])
 
@@ -338,12 +338,12 @@ def put_text(menus, day):
     print("Onsdag:      %s[0m" % menus["Informatikkafeen"]["Dagens"][2][0])
 
     if day == 3:
-        print("[1m")
+        print("[1m"),
     print("")
     print("Torsdag:     %s[0m" % menus["Informatikkafeen"]["Dagens"][3][0])
 
     if day == 4:
-        print("[1m")
+        print("[1m"),
     print("")
     print("Fredag:      %s[0m" % menus["Informatikkafeen"]["Dagens"][4][0])
 
