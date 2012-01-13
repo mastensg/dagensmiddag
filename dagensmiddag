@@ -39,9 +39,9 @@ def get_menus():
 
     d, v, h = [[j.text.strip().encode("utf-8") for j in i.findall("td")[1]] for i in table[:5:2]]
 
-    menus["Frederikke"]["Dagens"][0] = d[1:]
-    menus["Frederikke"]["Vegetar"][0] = v[0], " ".join(v[1:])
-    menus["Frederikke"]["Halal"][0] = h[:2]
+    menus["Frederikke"]["Dagens"] = 5 * [d[1:]]
+    menus["Frederikke"]["Vegetar"] = 5 * [[v[0], " ".join(v[1:])]]
+    menus["Frederikke"]["Halal"] = 5 * [h[:2]]
 
     n = 0
     for i in doc.find_class("sioArticleBodyText")[0].findall("table")[1].findall("tbody/tr"):
