@@ -1,0 +1,150 @@
+#!/usr/bin/env python
+# -*- coding: utf8 -*-
+
+import json
+import os
+import tempfile
+import time
+
+import mechanize
+import lxml.html
+
+def parse_page(page):
+    doc = lxml.html.fromstring(unicode(page, encoding="utf8"))
+    doc_table = doc.find_class("sioArticleBodyText")[0].findall("table")[0]
+    html_table = lxml.html.tostring(doc_table)
+
+    fd, path = tempfile.mkstemp("-dagensmiddag")
+    try:
+        os.write(fd, html_table)
+        os.close(fd)
+        rendered_table = os.popen("elinks -dump -dump-width 10000 %s 2>/dev/null" % path).read()
+    except:
+        raise
+    finally:
+        os.remove(path)
+
+    rendered_table = unicode(rendered_table, encoding="utf-8")
+
+    lines = rendered_table.split("\n")
+    lines = [l.replace(u"\xa0", " ") for l in lines]
+    lines = filter(lambda x: x.strip().strip() != "", lines)
+    lines = [l.rstrip("*") for l in lines]
+    lines = [l.rstrip(" ") for l in lines]
+    lines = [l.rstrip("L") for l in lines]
+    lines = [l.rstrip(" ") for l in lines]
+    lines = [l.rstrip("*") for l in lines]
+    lines = [l.rstrip(" ") for l in lines]
+
+    cols = []
+    end = False
+    in_column = False
+    for x in range(10000):
+        occupied = False
+        for line in lines:
+            if x >= len(line):
+                end = True
+                break
+
+            if not line[x].isspace():
+                occupied = True
+                break
+
+        if end:
+            break
+
+        if occupied:
+            if not in_column:
+                cols.append(x)
+                in_column = True
+        else:
+            in_column = False
+
+    table = []
+    for line in lines:
+        row = []
+        for i in range(len(cols) - 1):
+            row.append(line[cols[i]:cols[i + 1]])
+        row.append(line[cols[-1]:])
+
+        row = [c.strip() for c in row]
+
+        table.append(row)
+
+    for i in range(len(table)):
+        for r in range(len(table)):
+            if r == 0:
+                continue
+
+            if table[r][-1][0].islower():
+                table[r - 1][-1] = table[r - 1][-1].rstrip() + " " + table[r][-1].lstrip()
+                table.pop(r)
+                break
+
+    menu = [{}, {}, {}, {}, {}, {}]
+    days = "mandag", "tirsdag", "onsdag", "torsdag", "fredag"
+    day = 0
+    dish_types = "dagens", "vegetar", "halal"
+    dish_type = "dagens"
+    for row in table:
+        for c in row:
+            for d in days:
+                if d in c.lower():
+                    day += 1
+            for t in dish_types:
+                if t in c.lower():
+                    dish_type = t
+
+        if not dish_type in menu[day]:
+            menu[day][dish_type] = []
+
+        menu[day][dish_type].append(row[-1])
+
+    if day == 0:
+        menu = 5 * [menu[0]]
+    else:
+        menu = menu[1:]
+
+    return menu
+
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) != 2:
+        print("usage: %s output_file" % sys.argv[0])
+        exit(1)
+
+    path = sys.argv[1]
+
+    br = mechanize.Browser()
+
+    br.open("http://www.sio.no/")
+
+    time.sleep(1)
+    br.follow_link(text_regex=r"Mat og drikke")
+
+    time.sleep(1)
+    br.follow_link(text_regex=r"Dagens middag")
+
+    pages = [
+            {"name": "frederikke",  "link": r"Frederikke"},
+            {"name": "ifi",         "link": r"Informatikk"},
+            {"name": "sv",          "link": r"SV.kaf"},
+            {"name": "uv",          "link": r"Helga"},
+            ]
+
+    menus = {}
+
+    for page in pages:
+        link = page["link"]
+
+        time.sleep(1)
+        response = br.follow_link(text_regex=link)
+
+        menus[page["name"]] = parse_page(response.read())
+
+        br.back()
+
+    f = open(path, "w")
+    json.dump(menus, f)
+    f.close()
