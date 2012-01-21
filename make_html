@@ -19,7 +19,6 @@ if __name__ == "__main__":
     response = json.loads(json_response)
 
     weekday = time.localtime().tm_wday
-    weekday = 0
 
     htm = """<!doctype html>
 <head>
