@@ -81,18 +81,18 @@ def parse_page(page):
                 table.pop(r)
                 break
 
-    menu = [{}, {}, {}, {}, {}, {}]
-    days = "mandag", "tirsdag", "onsdag", "torsdag", "fredag"
+    menu = [{}, {}, {}, {}, {}, {}, {}, {}]
+    days = u"Mandag", u"Tirsdag", u"Onsdag", u"Torsdag", u"Fredag", u"Lørdag", u"Søndag"
     day = 0
-    dish_types = "dagens", "vegetar", "halal"
-    dish_type = "dagens"
+    dish_types = "Dagens", "Vegetar", "Halal"
+    dish_type = "Dagens"
     for row in table:
         for c in row:
             for d in days:
-                if d in c.lower():
+                if d.lower() in c.lower():
                     day += 1
             for t in dish_types:
-                if t in c.lower():
+                if t.lower() in c.lower():
                     dish_type = t
 
         if not dish_type in menu[day]:
@@ -101,7 +101,7 @@ def parse_page(page):
         menu[day][dish_type].append(row[-1])
 
     if day == 0:
-        menu = 5 * [menu[0]]
+        menu = 5 * [menu[0]] + [{}, {}]
     else:
         menu = menu[1:]
 
@@ -127,13 +127,15 @@ if __name__ == "__main__":
     br.follow_link(text_regex=r"Dagens middag")
 
     pages = [
-            {"name": "frederikke",  "link": r"Frederikke"},
-            {"name": "ifi",         "link": r"Informatikk"},
-            {"name": "sv",          "link": r"SV.kaf"},
-            {"name": "uv",          "link": r"Helga"},
+            {"name": "Frederikke Kafé",     "link": r"Frederikke",  "open": ("11:00-19:00", "11:00-19:00", "11:00-19:00", "11:00-19:00", "11:00-18:00", "Stengt", "Stengt")},
+            {"name": "Informatikkafeen",    "link": r"Informatikk", "open": ("11:00-17:00", "11:00-17:00", "11:00-17:00", "11:00-17:00", "11:00-15:00", "Stengt", "Stengt")},
+            {"name": "Kafé Athletica",      "link": r"Athletica",   "open": ("13:00-21:00", "13:00-21:00", "13:00-21:00", "13:00-21:00", "13:00-18:00", "Stengt", "Stengt")},
+            {"name": "Kafé Helga",          "link": r"Helga",       "open": ("11:30-16:30", "11:30-16:30", "11:30-16:30", "11:30-16:30", "11:30-15:30", "Stengt", "Stengt")},
+            {"name": "Kafé Ole",            "link": r"Ole",         "open": ("13:00-16:30", "13:00-16:30", "13:00-16:30", "13:00-16:30", "13:00-16:00", "Stengt", "Stengt")},
+            {"name": "SV-kafeen",           "link": r"SV.kaf",      "open": ("11:00-18:00", "11:00-18:00", "11:00-18:00", "11:00-18:00", "11:00-15:00", "Stengt", "Stengt")},
             ]
 
-    menus = {}
+    cafes = []
 
     for page in pages:
         link = page["link"]
@@ -141,10 +143,14 @@ if __name__ == "__main__":
         time.sleep(1)
         response = br.follow_link(text_regex=link)
 
-        menus[page["name"]] = parse_page(response.read())
+        menu = parse_page(response.read())
+        cafe = {"name": page["name"], "open": page["open"], "menu": menu}
+        cafes.append(cafe)
 
         br.back()
 
+    week = int(time.strftime("%W"))
+
     f = open(path, "w")
-    json.dump(menus, f)
+    json.dump({"week": week, "cafes": cafes}, f)
     f.close()
