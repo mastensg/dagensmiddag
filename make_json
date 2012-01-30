@@ -87,7 +87,7 @@ def parse_page(page):
     dish_types = "Dagens", "Vegetar", "Halal", "Suppe", "Optima"
     dish_type = "Dagens"
     for row in table:
-        for c in row:
+        for c in row[:-1]:
             for d in days:
                 if d.lower() in c.lower():
                     day += 1
