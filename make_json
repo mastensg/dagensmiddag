@@ -84,7 +84,7 @@ def parse_page(page):
     menu = [{}, {}, {}, {}, {}, {}, {}, {}]
     days = u"Mandag", u"Tirsdag", u"Onsdag", u"Torsdag", u"Fredag", u"Lørdag", u"Søndag"
     day = 0
-    dish_types = "Dagens", "Vegetar", "Halal"
+    dish_types = "Dagens", "Vegetar", "Halal", "Suppe", "Optima"
     dish_type = "Dagens"
     for row in table:
         for c in row:
