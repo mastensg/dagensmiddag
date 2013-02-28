@@ -1,156 +1,96 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
-import json
-import os
-import tempfile
-import time
+import urllib
 
-import mechanize
+import Levenshtein
 import lxml.html
 
-def parse_page(page):
-    doc = lxml.html.fromstring(unicode(page, encoding="utf8"))
-    doc_table = doc.find_class("sioArticleBodyText")[0].findall("table")[0]
-    html_table = lxml.html.tostring(doc_table)
+def correct(name):
+    # Correct the spelling of cafe names.
+    #
+    # Pattern                => Correction
+    substitution_table = (
+    (u"AHO-kafeen",             u"AHO-kafeen"),
+    (u"Annas Spiseri",          u"Annas spiseri"),
+    (u"Forskningsveien",        u"Forskningsveien kafé"),
+    (u"Frederikke kafe",        u"Frederikke kafé"),
+    (u"Hannas spiseri",         u"Hannas spiseri"),
+    (u"InforMATeket",           u"InforMATeket"),
+    (u"Informatikkafeen",       u"Informatikkafeen"),
+    (u"Kafe Helga",             u"Kafé Helga"),
+    (u"Kafe Nova",              u"Kafé Nova"),
+    (u"Kafe Ole",               u"Kafé Ole"),
+    (u"Kafe Seilduken",         u"Kafé Seilduken"),
+    (u"Musikkhøgskolens kafe",  u"Musikkhøgskolens kafé"),
+    (u"NIH",                    u"Idrettshøgskolens kafé"),
+    (u"Odontologi",             u"Odontologikafeen"),
+    (u"Preklinisk",             u"Preklinisk kafé"),
+    (u"Spiseriet P35",          u"Spiseriet P35"),
+    (u"SV",                     u"SV-kafeen"),
+    (u"Vetrinær",               u"Veterinærhøgskolens kafé"),
+    )
 
-    fd, path = tempfile.mkstemp("-dagensmiddag")
-    try:
-        os.write(fd, html_table)
-        os.close(fd)
-        rendered_table = os.popen("elinks -dump -dump-width 10000 %s 2>/dev/null" % path).read()
-    except:
-        raise
-    finally:
-        os.remove(path)
+    guesses = [(Levenshtein.distance(name, row[0]), row[1])
+                for row in substitution_table]
 
-    rendered_table = unicode(rendered_table, encoding="utf-8")
+    score, correction = min(guesses)
 
-    lines = rendered_table.split("\n")
-    lines = [l.replace(u"\xa0", " ") for l in lines]
-    lines = filter(lambda x: x.strip().strip() != "", lines)
-    lines = [l.rstrip("*") for l in lines]
-    lines = [l.rstrip(" ") for l in lines]
-    lines = [l.rstrip("L") for l in lines]
-    lines = [l.rstrip(" ") for l in lines]
-    lines = [l.rstrip("*") for l in lines]
-    lines = [l.rstrip(" ") for l in lines]
+    assert score < 5
 
-    cols = []
-    end = False
-    in_column = False
-    for x in range(10000):
-        occupied = False
-        for line in lines:
-            if x >= len(line):
-                end = True
-                break
+    return correction
 
-            if not line[x].isspace():
-                occupied = True
-                break
+def parse_index():
+    url = "http://www.siofiler.no/Kafe/"
+    htm = urllib.urlopen(url).read()
+    doc = lxml.html.fromstring(htm)
+    anchors = doc.findall("body/table/tr/td/a")
 
-        if end:
-            break
+    return [url + a.text for a in anchors if a.text.startswith("meny")]
 
-        if occupied:
-            if not in_column:
-                cols.append(x)
-                in_column = True
-        else:
-            in_column = False
+def parse_url(url):
+    htm = urllib.urlopen(url).read()
+    doc = lxml.html.fromstring(htm)
+    tables = doc.findall("body/table")
 
-    table = []
-    for line in lines:
-        row = []
-        for i in range(len(cols) - 1):
-            row.append(line[cols[i]:cols[i + 1]])
-        row.append(line[cols[-1]:])
+    return map(parse_table, tables)
 
-        row = [c.strip() for c in row]
+def parse_table(table):
+    rows = table.findall("tr")
+    week = int(rows[0].findall("td/p/span/strong")[0].text.split()[1])
 
-        table.append(row)
+    return {"week": week, "cafes": map(parse_row, rows[1:])}
 
-    for i in range(len(table)):
-        for r in range(len(table)):
-            if r == 0:
-                continue
+def parse_row(row):
+    cells = row.findall("td")
+    name = unicode(cells[0].findall("p/span/strong")[0].text)
 
-            if table[r][-1][0].islower():
-                table[r - 1][-1] = table[r - 1][-1].rstrip() + " " + table[r][-1].lstrip()
-                table.pop(r)
-                break
+    return {"name": correct(name), "menu": map(parse_cell, cells[1:])}
 
-    menu = [{}, {}, {}, {}, {}, {}, {}, {}]
-    days = u"Mandag", u"Tirsdag", u"Onsdag", u"Torsdag", u"Fredag", u"Lørdag", u"Søndag"
-    day = 0
-    dish_types = "Dagens", "Vegetar", "Halal", "Suppe", "Optima"
-    dish_type = "Dagens"
-    for row in table:
-        for c in row[:-1]:
-            for d in days:
-                if d.lower() in c.lower():
-                    day += 1
-            for t in dish_types:
-                if t.lower() in c.lower():
-                    dish_type = t
+def parse_cell(cell):
+    dishes = []
+    for d in [unicode(i.text) for i in cell.findall("p/span")]:
+        if not d:
+            continue
 
-        if not dish_type in menu[day]:
-            menu[day][dish_type] = []
+        if not len(d) > 3:
+            continue
 
-        menu[day][dish_type].append(row[-1])
+        dishes.append(d)
 
-    if day == 0:
-        menu = 5 * [menu[0]] + [{}, {}]
-    else:
-        menu = menu[1:]
-
-    return menu
+    return dishes
 
 if __name__ == "__main__":
+    import json
     import sys
 
     if len(sys.argv) != 2:
-        print("usage: %s output_file" % sys.argv[0])
+        sys.stderr.write("usage: %s output_directory\n" % sys.argv[0])
         exit(1)
 
-    path = sys.argv[1]
+    for menu in parse_url(max(parse_index())):
+        path = "%s/2013-%02d.json" % (sys.argv[1], menu["week"])
 
-    br = mechanize.Browser()
-
-    br.open("http://www.sio.no/")
-
-    time.sleep(1)
-    br.follow_link(text_regex=r"Mat og drikke")
-
-    time.sleep(1)
-    br.follow_link(text_regex=r"Dagens middag")
-
-    pages = [
-            {"name": "Frederikke Kafé",     "link": r"Frederikke",  "open": ("11:00-19:00", "11:00-19:00", "11:00-19:00", "11:00-19:00", "11:00-18:00", "Stengt", "Stengt")},
-            {"name": "Informatikkafeen",    "link": r"Informatikk", "open": ("11:00-17:00", "11:00-17:00", "11:00-17:00", "11:00-17:00", "11:00-15:00", "Stengt", "Stengt")},
-            {"name": "Kafé Athletica",      "link": r"Athletica",   "open": ("13:00-21:00", "13:00-21:00", "13:00-21:00", "13:00-21:00", "13:00-18:00", "Stengt", "Stengt")},
-            {"name": "Kafé Helga",          "link": r"Helga",       "open": ("11:30-16:30", "11:30-16:30", "11:30-16:30", "11:30-16:30", "11:30-15:30", "Stengt", "Stengt")},
-            {"name": "Kafé Ole",            "link": r"Ole",         "open": ("13:00-16:30", "13:00-16:30", "13:00-16:30", "13:00-16:30", "13:00-16:00", "Stengt", "Stengt")},
-            {"name": "SV-kafeen",           "link": r"SV.kaf",      "open": ("11:00-18:00", "11:00-18:00", "11:00-18:00", "11:00-18:00", "11:00-15:00", "Stengt", "Stengt")},
-            ]
-
-    cafes = []
-
-    for page in pages:
-        link = page["link"]
-
-        time.sleep(1)
-        response = br.follow_link(text_regex=link)
-
-        menu = parse_page(response.read())
-        cafe = {"name": page["name"], "open": page["open"], "menu": menu}
-        cafes.append(cafe)
-
-        br.back()
-
-    week = int(time.strftime("%W"))
-
-    f = open(path, "w")
-    json.dump({"week": week, "cafes": cafes}, f)
-    f.close()
+        f = open(path, "w")
+        json.dump(menu, f)
+        f.close()
