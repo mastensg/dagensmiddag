@@ -69,7 +69,7 @@ def parse_row(row):
 
 def parse_cell(cell):
     dishes = []
-    for d in [unicode(i.text) for i in cell.findall("p/span")]:
+    for d in [unicode(i.text) for i in cell.findall("p//")]:
         if d == "None" or not len(d) > 3:
             continue
 
