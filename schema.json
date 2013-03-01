@@ -1,0 +1,37 @@
+{
+    "type" : "object",
+    "properties":
+    {
+        "week":
+        {
+            "type": "integer"
+        },
+        "cafes":
+        {
+            "type": "array",
+            "items": 
+            {
+                "type": "object",
+                "properties":
+                {
+                    "name":
+                    {
+                        "type": "string"
+                    }
+                    "menu":
+                    {
+                        "type": "array",
+                        "items":
+                        {
+                            "type": "array",
+                            "items":
+                            {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
