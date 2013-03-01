@@ -87,7 +87,7 @@ if __name__ == "__main__":
         sys.stderr.write("usage: %s output_directory\n" % sys.argv[0])
         exit(1)
 
-    schema = json.load(open("schema.json"))
+    schema = json.load(urllib.urlopen("http://www.dagensmiddag.net/menyer/schema.json"))
 
     for menu in parse_url(max(parse_index())):
         jsonschema.validate(menu, schema)
