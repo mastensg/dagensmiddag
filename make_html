@@ -15,10 +15,13 @@ if __name__ == "__main__":
 
     path = sys.argv[1]
 
-    json_response = urllib.urlopen("http://www.dagensmiddag.net/index.json").read()
+    url = time.strftime("http://www.dagensmiddag.net/menyer/%G-%V.json")
+    json_response = urllib.urlopen(url).read()
     response = json.loads(json_response)
 
     weekday = time.localtime().tm_wday
+
+    days = u"Mandag", u"Tirsdag", u"Onsdag", u"Torsdag", u"Fredag", u"Lørdag", u"Søndag"
 
     htm = """<!doctype html>
 <head>
@@ -27,62 +30,43 @@ if __name__ == "__main__":
 </head>\n"""
 
     htm += "<table>\n<thead><tr>\n"
-    htm += 2 * """<th class="leftmost"></th>\n"""
-
-    days = u"Mandag", u"Tirsdag", u"Onsdag", u"Torsdag", u"Fredag", u"Lørdag", u"Søndag"
-    for i in range(len(days)):
-        if not i == weekday:
-            continue
-
-        htm += """<th class="today">%s</th>\n""" % days[i]
-
+    htm += """<th class="leftmost"></th>\n"""
+    htm += """<th class="today">%s</th>\n""" % days[weekday]
     htm += "</tr></thead>\n"
-
     htm += "<tbody>\n"
 
-    i = 0
+    row = 0
     for cafe in response["cafes"]:
         name = cafe["name"]
         menu = cafe["menu"]
-        opening_hours = cafe["open"]
 
-        if i % 2 == 0:
-            row_class = "even"
-        else:
-            row_class = "odd"
+        if menu[weekday] == []:
+            continue
 
-        htm += """<tr class="%s">\n""" % row_class
+        row_class = ["even", "odd"][row % 2]
 
-        num_dish_types = len(menu[weekday])
+        htm += u"""<tr class="%s">\n""" % row_class
+        htm += u"""<td class="leftmost">%s</td>\n""" % name
 
-        htm += u"""<td class="leftmost" rowspan="%d">%s</td>\n""" % (num_dish_types + 1, name)
-        htm += u"""<td>Åpningstid</td>\n"""
-        htm += u"""<td>%s</td>\n""" % opening_hours[weekday]
+        htm += u"""<td class="today"><ul>\n"""
 
+        for dish in menu[weekday]:
+            htm += u"""<li>%s</li>\n""" % dish
+
+        htm += u"""</ul></td>\n"""
         htm += "</tr>\n"
 
-        for dt in menu[weekday]:
-            htm += u"""<tr class="%s">\n""" % row_class
-            htm += u"""<td>%s</td>\n""" % dt
-
-            column_class = "today"
-            htm += u"""<td class="%s"><ul>\n""" % column_class
-            for j in menu[weekday][dt]:
-                htm += u"""<li>%s</li>\n""" % j
-            htm += u"""</ul></td>\n"""
-
-            htm += u"""</tr>\n"""
-
-        i += 1
+        row += 1
 
     htm += "</tbody>\n"
     htm += "</table>\n"
 
     htm += u"""<div class="notice">
     <p>Denne siden er laget av Martin Stensgård (mastensg&#64;ping.uio.no).</p>
-    <p>Tabellen fins også som <a href="index.json">JSON</a>.</p>
+    <p>Tabellen er generert basert på <a href="%s">denne JSON-filen</a> fra <a href="menyer">arkivet</a>.
+    Filene er på <a href="menyer/schema.json">dette formatet (JSON schema)</a>.</p>
     <p>Kildekoden er tilgjengelig på <a href="http://github.com/mastensg/dagensmiddag">Github</a>.</p>
-</div>"""
+</div>""" % url
 
     f = open(path, "w")
     f.write(htm.encode("utf-8"))
