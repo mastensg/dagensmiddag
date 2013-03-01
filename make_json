@@ -84,11 +84,17 @@ if __name__ == "__main__":
     import json
     import sys
 
+    import jsonschema
+
     if len(sys.argv) != 2:
         sys.stderr.write("usage: %s output_directory\n" % sys.argv[0])
         exit(1)
 
+    schema = json.load(open("schema.json"))
+
     for menu in parse_url(max(parse_index())):
+        jsonschema.validate(menu, schema)
+
         path = "%s/2013-%02d.json" % (sys.argv[1], menu["week"])
 
         f = open(path, "w")
