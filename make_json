@@ -64,8 +64,10 @@ def parse_table(table):
 def parse_row(row):
     cells = row.findall("td")
     name = unicode(cells[0].findall("p/span/strong")[0].text)
+    menu = map(parse_cell, cells[1:])
+    menu += (7 - len(menu)) * [[]]
 
-    return {"name": correct(name), "menu": map(parse_cell, cells[1:])}
+    return {"name": correct(name), "menu": menu}
 
 def parse_cell(cell):
     dishes = []
